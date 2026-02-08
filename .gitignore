@@ -1,0 +1,33 @@
+# Environments
+.env
+.venv
+env/
+venv/
+.conda/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node / Frontend
+node_modules/
+.nuxt/
+.output/
+dist/
+.nitro/
+.cache/
+
+# Project Specific
+qdrant_storage/
+backend/data/*.pdf
+backend/data/*.docx
+backend/data/*.txt
+!backend/data/files.json
+
+# OS
+.DS_Store
+Thumbs.db

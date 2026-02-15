@@ -1,66 +1,97 @@
-<template>
-  <div class="space-y-3">
-    <div v-if="loading" class="text-sm text-gray-500">Loading files...</div>
-    <div v-else-if="files.length === 0" class="text-sm text-gray-500 italic">No files uploaded yet.</div>
-    <ul v-else class="space-y-2">
-      <li v-for="file in files" :key="file.file_id" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100 hover:bg-gray-100 transition">
-        <div class="overflow-hidden">
-          <p class="text-sm font-medium text-gray-700 truncate" :title="file.filename">{{ file.filename }}</p>
-          <p class="text-xs text-gray-400">{{ formatDate(file.upload_date) }}</p>
-        </div>
-        <button @click="deleteFile(file.file_id)" class="text-red-400 hover:text-red-600 ml-2" title="Delete">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
-        </button>
-      </li>
-    </ul>
-  </div>
-</template>
-
 <script setup>
-import { ref, onMounted } from 'vue'
+import { 
+  FileText, 
+  Trash2, 
+  Clock, 
+  Search,
+  CheckCircle2,
+  AlertCircle
+} from 'lucide-vue-next'
 
 const files = ref([])
-const loading = ref(true)
-const config = useRuntimeConfig()
+const searchQuery = ref('')
 
 const fetchFiles = async () => {
-  loading.value = true
-  try {
-    const res = await fetch(`${config.public.apiBase}/files`)
-    if (res.ok) {
-      files.value = await res.json()
-    }
-  } catch (e) {
-    console.error(e)
-  } finally {
-    loading.value = false
-  }
+  const res = await fetch('http://localhost:8000/files')
+  files.value = await res.json()
 }
 
-const deleteFile = async (fileId) => {
-  if (!confirm('Are you sure you want to delete this file?')) return
-
-  try {
-    const res = await fetch(`${config.public.apiBase}/files/${fileId}`, {
-      method: 'DELETE'
-    })
-    if (res.ok) {
-      files.value = files.value.filter(f => f.file_id !== fileId)
-    } else {
-        alert("Failed to delete")
-    }
-  } catch (e) {
-    console.error(e)
-    alert("Error deleting file")
-  }
+const deleteFile = async (id) => {
+  if (!confirm('Are you sure you want to delete this document?')) return
+  await fetch('http://localhost:8000/files/' + id, { method: 'DELETE' })
+  fetchFiles()
 }
+
+onMounted(fetchFiles)
+
+const filteredFiles = computed(() => {
+  return files.value.filter(f => f.filename.toLowerCase().includes(searchQuery.value.toLowerCase()))
+})
 
 const formatDate = (dateStr) => {
-    if (!dateStr) return ''
-    return new Date(dateStr).toLocaleDateString()
+  if (!dateStr) return 'Unknown'
+  return new Date(dateStr).toLocaleDateString('en-MY', { 
+    day: 'numeric', 
+    month: 'short', 
+    year: 'numeric' 
+  })
 }
-
-onMounted(() => {
-  fetchFiles()
-})
 </script>
+
+<template>
+  <div class="space-y-6">
+    <!-- Search Bar -->
+    <div class="relative max-w-md">
+      <Search class="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
+      <input 
+        v-model="searchQuery"
+        placeholder="Search documents..." 
+        class="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all shadow-sm"
+      />
+    </div>
+
+    <!-- Empty State -->
+    <div v-if="filteredFiles.length === 0" class="text-center py-20 bg-slate-50/50 rounded-[2rem] border-2 border-dashed border-slate-100">
+      <div class="bg-white w-16 h-16 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center mx-auto mb-4">
+        <FileText class="w-8 h-8 text-slate-300" />
+      </div>
+      <p class="text-slate-500 font-medium">No documents found matching your search.</p>
+    </div>
+
+    <!-- Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div 
+        v-for="file in filteredFiles" 
+        :key="file.file_id"
+        class="group bg-white p-5 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all relative overflow-hidden"
+      >
+        <div class="flex items-start gap-4">
+          <div class="p-3 bg-indigo-50 text-indigo-600 rounded-2xl">
+            <FileText class="w-6 h-6" />
+          </div>
+          <div class="flex-1 min-w-0">
+            <h4 class="font-bold text-slate-900 truncate mb-1">{{ file.filename }}</h4>
+            <div class="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
+              <Clock class="w-3.5 h-3.5" />
+              {{ formatDate(file.upload_date) }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Status Tag -->
+        <div class="mt-4 flex items-center justify-between">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-600 rounded-full text-[10px] font-bold uppercase tracking-wider border border-green-100">
+            <CheckCircle2 class="w-3 h-3" />
+            Indexed
+          </span>
+          <button 
+            @click="deleteFile(file.file_id)"
+            class="p-2 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all opacity-0 group-hover:opacity-100"
+          >
+            <Trash2 class="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>

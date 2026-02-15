@@ -5,7 +5,7 @@ langchain
 langchain-community
 langchain-qdrant
 qdrant-client
-unstructured[local-inference]
+markitdown[all]
 python-dotenv
 httpx
 # For embeddings (Ollama)

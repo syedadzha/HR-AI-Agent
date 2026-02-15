@@ -1,70 +1,117 @@
-<template>
-  <div class="min-h-screen bg-gray-50 text-gray-900 font-sans flex flex-col">
-    <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <h1 class="text-xl font-semibold text-indigo-600 flex items-center gap-2">
-          <span>HR Policy Assistant</span>
-        </h1>
-        
-        <nav class="flex gap-4">
-          <button 
-            @click="currentView = 'chat'"
-            :class="['px-4 py-2 rounded-lg font-medium transition-colors', currentView === 'chat' ? 'bg-indigo-50 text-indigo-600' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100']"
-          >
-            Chat
-          </button>
-          <button 
-            @click="currentView = 'settings'"
-            :class="['px-4 py-2 rounded-lg font-medium transition-colors', currentView === 'settings' ? 'bg-indigo-50 text-indigo-600' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100']"
-          >
-            Settings
-          </button>
-        </nav>
-      </div>
-    </header>
-
-    <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full overflow-hidden flex flex-col">
-      <!-- Chat View -->
-      <section v-if="currentView === 'chat'" class="flex-1 bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden">
-        <h2 class="text-lg font-medium mb-4 border-b pb-2">Conversation</h2>
-        <ChatInterface class="flex-1 overflow-hidden" />
-      </section>
-
-      <!-- Settings View -->
-      <section v-else-if="currentView === 'settings'" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="md:col-span-1 space-y-6">
-          <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <h2 class="text-lg font-medium mb-4">Upload New Document</h2>
-            <FileUpload @uploaded="refreshFiles" />
-          </div>
-        </div>
-        
-        <div class="md:col-span-2">
-          <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <h2 class="text-lg font-medium mb-4">Manage Documents</h2>
-            <FileList :key="refreshKey" />
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
-</template>
-
 <script setup>
-import { ref } from 'vue'
+const isAppLaunched = ref(false)
+const activeTab = ref('chat')
+const showAuth = ref(false)
 
-const currentView = ref('chat')
-const refreshKey = ref(0)
+const setTab = (tab) => {
+  activeTab.value = tab
+}
 
-const refreshFiles = () => {
-  refreshKey.value++
+const toggleAuth = () => {
+  showAuth.value = !showAuth.value
+}
+
+const launchApp = () => {
+  isAppLaunched.value = true
 }
 </script>
 
+<template>
+  <div class="font-sans text-slate-900 overflow-x-hidden">
+    <!-- Landing Page View -->
+    <div v-if="!isAppLaunched" class="animate-in fade-in duration-700">
+      <LandingPage @getStarted="launchApp" />
+    </div>
+
+    <!-- Main Application View -->
+    <div v-else class="flex h-screen bg-white overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <!-- Main Sidebar -->
+      <Sidebar 
+        :activeTab="activeTab" 
+        @setTab="setTab" 
+        @openAuth="toggleAuth"
+      />
+
+      <!-- Main Content Area -->
+      <main class="flex-1 flex flex-col h-full bg-white relative">
+        <!-- Transition wrapper for views -->
+        <div class="flex-1 overflow-hidden">
+          <div v-if="activeTab === 'chat'" class="h-full">
+            <ChatInterface />
+          </div>
+          
+          <div v-if="activeTab === 'files'" class="h-full p-8 max-w-6xl mx-auto w-full overflow-y-auto">
+            <header class="mb-10">
+              <h2 class="text-3xl font-bold tracking-tight">Policy Library</h2>
+              <p class="text-slate-500 mt-2">Manage and upload your HR documentation for analysis.</p>
+            </header>
+            
+            <div class="space-y-12 pb-20">
+              <section>
+                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6">Quick Upload</h3>
+                <FileUpload />
+              </section>
+              
+              <section>
+                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6">Indexed Documents</h3>
+                <FileList />
+              </section>
+            </div>
+          </div>
+
+          <div v-if="activeTab === 'profile'" class="h-full overflow-y-auto">
+            <UserProfile />
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Global Auth Modal -->
+    <AuthModal v-if="showAuth" @close="toggleAuth" />
+  </div>
+</template>
+
 <style>
-/* Ensure the body doesn't scroll so the app can be full-height if needed */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
 body {
-  height: 100vh;
-  margin: 0;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #cbd5e1;
+}
+
+/* Animations */
+.animate-in {
+  animation-fill-mode: forwards;
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes zoom-in {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+@keyframes slide-in-from-bottom-4 {
+  from { transform: translateY(1rem); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes slide-in-from-top-4 {
+  from { transform: translateY(-1rem); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 </style>

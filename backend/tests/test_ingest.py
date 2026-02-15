@@ -5,30 +5,29 @@ from ingest import process_and_index_file, ensure_collection_exists
 
 @pytest.fixture
 def mock_langchain():
-    with patch("ingest.UnstructuredLoader") as mock_loader, \
-         patch("ingest.RecursiveCharacterTextSplitter") as mock_splitter, \
+    with patch("ingest.MarkItDown") as mock_markitdown, \
+         patch("ingest.AgenticChunker") as mock_chunker, \
          patch("ingest.QdrantVectorStore") as mock_qdrant, \
          patch("ingest.client") as mock_client:
         
-        # Mock Loader
-        mock_doc = MagicMock()
-        mock_doc.page_content = "This is a test document content."
-        mock_doc.metadata = {}
-        mock_loader.return_value.load.return_value = [mock_doc]
+        # Mock MarkItDown
+        mock_result = MagicMock()
+        mock_result.text_content = "This is a test document content."
+        mock_markitdown.return_value.convert.return_value = mock_result
         
-        # Mock Splitter
+        # Mock Chunker
         mock_chunk = MagicMock()
         mock_chunk.page_content = "This is a test document content."
         mock_chunk.metadata = {}
-        mock_splitter.return_value.split_documents.return_value = [mock_chunk]
+        mock_chunker.return_value.split_documents.return_value = [mock_chunk]
         
         # Mock Qdrant Vector Store
         mock_vector_store = MagicMock()
         mock_qdrant.return_value = mock_vector_store
         
         yield {
-            "loader": mock_loader,
-            "splitter": mock_splitter,
+            "markitdown": mock_markitdown,
+            "chunker": mock_chunker,
             "qdrant": mock_qdrant,
             "client": mock_client,
             "vector_store": mock_vector_store,
@@ -46,8 +45,8 @@ def test_process_and_index_file_logic(mock_langchain):
     # Check if collection exists check was called
     mocks["client"].collection_exists.assert_called()
     
-    # Check if loader was initialized with correct path
-    mocks["loader"].assert_called_once_with(file_path)
+    # Check if MarkItDown was used
+    mocks["markitdown"].return_value.convert.assert_called_once_with(file_path)
     
     # Check if chunks got metadata
     assert mocks["chunk"].metadata["file_id"] == file_id

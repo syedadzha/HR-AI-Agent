@@ -10,6 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@headlessui/vue": "^1.7.23",
     "@pinia/nuxt": "^0.5.1",
     "lucide-vue-next": "^0.363.0",
     "markdown-it": "^14.1.0",

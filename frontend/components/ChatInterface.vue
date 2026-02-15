@@ -1,118 +1,144 @@
-<template>
-  <div class="flex flex-col h-full">
-    <div class="flex-1 overflow-y-auto space-y-4 mb-4 pr-2" ref="chatContainer">
-      <div v-for="(msg, index) in history" :key="index" :class="['flex', msg.role === 'user' ? 'justify-end' : 'justify-start']">
-        <div :class="[
-            'max-w-[85%] rounded-lg px-4 py-2 text-sm shadow-sm', 
-            msg.role === 'user' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-800'
-        ]">
-          <div v-if="msg.role === 'assistant'" class="prose prose-sm max-w-none prose-slate" v-html="renderMarkdown(msg.content)"></div>
-          <div v-else class="whitespace-pre-wrap">{{ msg.content }}</div>
-        </div>
-      </div>
-      <div v-if="loading" class="flex justify-start">
-         <div class="bg-gray-100 text-gray-800 rounded-lg px-4 py-2 text-sm shadow-sm animate-pulse">
-            Thinking...
-         </div>
-      </div>
-    </div>
-
-    <form @submit.prevent="sendMessage" class="flex gap-2">
-      <input 
-        v-model="input" 
-        type="text" 
-        placeholder="Ask a question about your documents..." 
-        class="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none shadow-sm"
-        :disabled="loading"
-      />
-      <button 
-        type="submit" 
-        class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors shadow-sm"
-        :disabled="loading || !input.trim()"
-      >
-        Send
-      </button>
-    </form>
-  </div>
-</template>
-
 <script setup>
-import { ref, nextTick, watch } from 'vue'
-import MarkdownIt from 'markdown-it'
+import { 
+  Send, 
+  Bot, 
+  User, 
+  Sparkles,
+  RefreshCcw,
+  Info
+} from 'lucide-vue-next'
 
-const md = new MarkdownIt({
-  html: true,
-  linkify: true,
-  typographer: true
-})
+const question = ref('')
+const history = ref([
+  { role: 'assistant', content: "Hello! I'm your AI HR Assistant. I've indexed your latest company policies. How can I help you today?" }
+])
+const isLoading = ref(false)
 
-const renderMarkdown = (content) => {
-  return md.render(content)
-}
+const askQuestion = async () => {
+  if (!question.value.trim() || isLoading.value) return
 
-const input = ref('')
-const history = ref([])
-const loading = ref(false)
-const chatContainer = ref(null)
-const config = useRuntimeConfig()
+  const userMsg = { role: 'user', content: question.value }
+  history.value.push(userMsg)
+  const currentQuestion = question.value
+  question.value = ''
+  isLoading.value = true
 
-const scrollToBottom = async () => {
-    await nextTick()
-    if (chatContainer.value) {
-        chatContainer.value.scrollTop = chatContainer.value.scrollHeight
-    }
-}
-
-const sendMessage = async () => {
-  if (!input.value.trim() || loading.value) return
-  
-  const question = input.value.trim()
-  input.value = ''
-  
-  // Create a copy of history for the request before adding the user message
-  const historyForRequest = [...history.value]
-  
-  history.value.push({ role: 'user', content: question })
-  scrollToBottom()
-  
-  loading.value = true
-  
-  // Add an empty assistant message to populate as we stream
-  const assistantMessageIndex = history.value.length
-  history.value.push({ role: 'assistant', content: '' })
-  
   try {
-    const res = await fetch(`${config.public.apiBase}/chat`, {
+    const response = await fetch('http://localhost:8000/chat', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        question,
-        history: historyForRequest
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question: currentQuestion, history: history.value.slice(0, -1) })
     })
-    
-    if (!res.ok) throw new Error('Chat failed')
-    
-    const reader = res.body.getReader()
+
+    const assistantMsg = { role: 'assistant', content: '' }
+    history.value.push(assistantMsg)
+
+    const reader = response.body.getReader()
     const decoder = new TextDecoder()
     
     while (true) {
       const { done, value } = await reader.read()
       if (done) break
-      
-      const chunk = decoder.decode(value, { stream: true })
-      history.value[assistantMessageIndex].content += chunk
-      scrollToBottom()
+      assistantMsg.content += decoder.decode(value)
     }
-    
-  } catch (e) {
-    console.error(e)
-    history.value[assistantMessageIndex].content = "Sorry, I encountered an error."
+  } catch (error) {
+    console.error('Chat error:', error)
   } finally {
-    loading.value = false
-    scrollToBottom()
+    isLoading.value = false
   }
 }
 </script>
+
+<template>
+  <div class="flex flex-col h-full max-w-5xl mx-auto w-full px-4 lg:px-8">
+    <!-- Chat Header -->
+    <header class="py-6 border-b border-slate-100 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
+          <Sparkles class="w-5 h-5" />
+        </div>
+        <div>
+          <h2 class="font-bold text-slate-900 leading-none">Policy Assistant</h2>
+          <span class="text-[10px] text-green-500 font-bold uppercase tracking-widest flex items-center gap-1 mt-1">
+            <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+            System Ready
+          </span>
+        </div>
+      </div>
+      <button class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all">
+        <RefreshCcw class="w-5 h-5" />
+      </button>
+    </header>
+
+    <!-- Messages -->
+    <div class="flex-1 overflow-y-auto py-8 space-y-8 no-scrollbar">
+      <div 
+        v-for="(msg, i) in history" 
+        :key="i"
+        class="flex gap-4 animate-in fade-in slide-in-from-bottom-2 duration-300"
+        :class="[msg.role === 'user' ? 'flex-row-reverse' : '']"
+      >
+        <div 
+          class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-sm"
+          :class="[msg.role === 'user' ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600 border border-slate-200']"
+        >
+          <User v-if="msg.role === 'user'" class="w-5 h-5" />
+          <Bot v-else class="w-5 h-5" />
+        </div>
+
+        <div 
+          class="max-w-[80%] rounded-3xl px-6 py-4 shadow-sm leading-relaxed text-sm whitespace-pre-wrap"
+          :class="[
+            msg.role === 'user' 
+              ? 'bg-indigo-600 text-white rounded-tr-none font-medium' 
+              : 'bg-white text-slate-700 border border-slate-100 rounded-tl-none'
+          ]"
+        >
+          {{ msg.content }}
+        </div>
+      </div>
+      
+      <div v-if="isLoading && !history[history.length-1].content" class="flex gap-4 animate-pulse">
+        <div class="w-10 h-10 bg-slate-100 rounded-2xl border border-slate-200"></div>
+        <div class="h-12 bg-slate-50 w-24 rounded-3xl rounded-tl-none border border-slate-100"></div>
+      </div>
+    </div>
+
+    <!-- Input Section -->
+    <div class="pb-10 pt-4">
+      <div class="relative group">
+        <div class="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-[2rem] blur opacity-10 group-focus-within:opacity-25 transition duration-1000 group-hover:duration-200"></div>
+        <div class="relative bg-white border border-slate-200 rounded-3xl shadow-xl p-2 transition-all group-focus-within:border-indigo-300 group-focus-within:ring-4 group-focus-within:ring-indigo-50">
+          <form @submit.prevent="askQuestion" class="flex items-center gap-2">
+            <input 
+              v-model="question"
+              placeholder="Ask anything about company policies..." 
+              class="flex-1 bg-transparent border-none focus:ring-0 py-4 px-6 text-slate-700 font-medium placeholder:text-slate-400"
+            />
+            <button 
+              type="submit"
+              :disabled="!question.trim() || isLoading"
+              class="p-4 bg-indigo-600 text-white rounded-2xl shadow-lg shadow-indigo-200 hover:bg-indigo-700 disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none transition-all"
+            >
+              <Send class="w-5 h-5" />
+            </button>
+          </form>
+        </div>
+        <p class="text-center text-[11px] text-slate-400 mt-4 flex items-center justify-center gap-1">
+          <Info class="w-3 h-3" />
+          AI can make mistakes. Verify important policy details with HR.
+        </p>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+</style>

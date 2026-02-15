@@ -23,10 +23,12 @@ dist/
 
 # Project Specific
 qdrant_storage/
-backend/data/*.pdf
-backend/data/*.docx
-backend/data/*.txt
-!backend/data/files.json
+backend/data/*
+!backend/data/.gitkeep
+*.skill
+/skills/
+/data/
+handbook_content.md
 
 # OS
 .DS_Store

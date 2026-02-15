@@ -1,0 +1,21 @@
+name: hr-policy-rag
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      - fastapi
+      - uvicorn
+      - python-multipart
+      - langchain
+      - langchain-community
+      - langchain-qdrant
+      - qdrant-client
+      - markitdown[all]
+      - python-dotenv
+      - httpx
+      - langchain-ollama
+      - pytest
+      - pytest-asyncio

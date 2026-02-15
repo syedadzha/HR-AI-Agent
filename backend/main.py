@@ -126,6 +126,18 @@ async def chat(request: ChatRequest):
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/chat/blocking")
+async def chat_blocking(request: ChatRequest):
+    try:
+        # Convert Pydantic models to tuples
+        history_tuples = [(msg.role, msg.content) for msg in request.history]
+        answer = chat_with_doc(request.question, history_tuples)
+        return {"answer": answer}
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

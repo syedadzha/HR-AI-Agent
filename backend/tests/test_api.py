@@ -29,9 +29,13 @@ def mock_ingest():
 
 @pytest.fixture
 def mock_rag():
-    with patch("main.chat_with_doc") as mock_chat:
-        mock_chat.return_value = "This is a mock answer."
-        yield mock_chat
+    with patch("main.stream_chat_with_doc") as mock_stream:
+        # Mock stream_chat_with_doc to yield a few chunks
+        def yield_chunks(q, h):
+            yield "This is a "
+            yield "mock answer."
+        mock_stream.side_effect = yield_chunks
+        yield mock_stream
 
 def test_list_files_empty(mock_metadata):
     mock_get, _ = mock_metadata
@@ -77,7 +81,7 @@ def test_delete_file(mock_metadata, mock_ingest):
     mock_save.assert_called_with([])
 
 def test_chat(mock_rag):
-    mock_chat = mock_rag
+    mock_stream = mock_rag
     
     payload = {
         "question": "Hello?",
@@ -86,12 +90,13 @@ def test_chat(mock_rag):
     response = client.post("/chat", json=payload)
     
     assert response.status_code == 200
-    assert response.json() == {"answer": "This is a mock answer."}
+    # StreamingResponse content is in response.text or response.content
+    assert response.text == "This is a mock answer."
     
-    mock_chat.assert_called_with("Hello?", [])
+    mock_stream.assert_called_once()
 
 def test_chat_with_history(mock_rag):
-    mock_chat = mock_rag
+    mock_stream = mock_rag
     
     payload = {
         "question": "Follow up",
@@ -100,4 +105,7 @@ def test_chat_with_history(mock_rag):
     response = client.post("/chat", json=payload)
     
     assert response.status_code == 200
-    mock_chat.assert_called_with("Follow up", [("user", "Hi"), ("assistant", "Hello")])
+    assert response.text == "This is a mock answer."
+    
+    # Verify the history was converted correctly to tuples
+    mock_stream.assert_called_with("Follow up", [("user", "Hi"), ("assistant", "Hello")])

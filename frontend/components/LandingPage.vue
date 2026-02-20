@@ -7,7 +7,8 @@ import {
   ArrowRight,
   Database,
   Lock,
-  Cpu
+  Cpu,
+  Sparkles
 } from 'lucide-vue-next'
 
 defineEmits(['getStarted'])

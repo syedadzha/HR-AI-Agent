@@ -7,6 +7,13 @@ import {
   RefreshCcw,
   Info
 } from 'lucide-vue-next'
+import MarkdownIt from 'markdown-it'
+
+const md = new MarkdownIt({
+  html: true,
+  linkify: true,
+  typographer: true
+})
 
 const question = ref('')
 const history = ref([
@@ -31,7 +38,7 @@ const askQuestion = async () => {
     })
 
     const assistantMsg = { role: 'assistant', content: '' }
-    history.value.push(assistantMsg)
+    const newMsgIndex = history.value.push(assistantMsg) - 1
 
     const reader = response.body.getReader()
     const decoder = new TextDecoder()
@@ -39,7 +46,9 @@ const askQuestion = async () => {
     while (true) {
       const { done, value } = await reader.read()
       if (done) break
-      assistantMsg.content += decoder.decode(value)
+      
+      const chunk = decoder.decode(value, { stream: true })
+      history.value[newMsgIndex].content += chunk
     }
   } catch (error) {
     console.error('Chat error:', error)
@@ -87,14 +96,17 @@ const askQuestion = async () => {
         </div>
 
         <div 
-          class="max-w-[80%] rounded-3xl px-6 py-4 shadow-sm leading-relaxed text-sm whitespace-pre-wrap"
+          class="max-w-[80%] rounded-3xl px-6 py-4 shadow-sm leading-relaxed text-sm"
           :class="[
             msg.role === 'user' 
-              ? 'bg-indigo-600 text-white rounded-tr-none font-medium' 
-              : 'bg-white text-slate-700 border border-slate-100 rounded-tl-none'
+              ? 'bg-indigo-600 text-white rounded-tr-none font-medium whitespace-pre-wrap' 
+              : 'bg-white text-slate-700 border border-slate-100 rounded-tl-none prose prose-slate prose-sm max-w-none'
           ]"
         >
-          {{ msg.content }}
+          <template v-if="msg.role === 'user'">
+            {{ msg.content }}
+          </template>
+          <div v-else v-html="md.render(msg.content)"></div>
         </div>
       </div>
       
@@ -113,7 +125,7 @@ const askQuestion = async () => {
             <input 
               v-model="question"
               placeholder="Ask anything about company policies..." 
-              class="flex-1 bg-transparent border-none focus:ring-0 py-4 px-6 text-slate-700 font-medium placeholder:text-slate-400"
+              class="flex-1 bg-transparent border-none focus:ring-0 focus:outline-none py-4 px-6 text-slate-700 font-medium placeholder:text-slate-400"
             />
             <button 
               type="submit"

@@ -10,48 +10,55 @@ A RAG-based application for chatting with HR documents, featuring advanced parsi
 
 ## Prerequisites
 - Docker & Docker Compose
-- Python 3.10+
+- **Python 3.11**
 - Node.js 18+ (and pnpm)
-- [Ollama](https://ollama.com/) installed and running
-
-## Advanced Pipeline Features
-This system implements a sophisticated ingestion pipeline:
-1.  **Parsing:** Uses Microsoft's **MarkItDown** for robust conversion of various file types (PDF, DOCX, etc.) to high-quality Markdown.
-2.  **Initial Chunking:** Large-scale splitting (4000 characters) with a 10% overlap to preserve context across boundaries.
-3.  **Agentic Extraction:** Uses an LLM to decompose text into standalone, factual propositions.
-4.  **Deduplication:** Automatically removes redundant propositions caused by chunk overlaps.
-5.  **Semantic Grouping:** Groups propositions into coherent chunks (~1200 characters) with LLM-generated titles for better retrieval accuracy.
+- [Ollama](https://ollama.com/) (Optional, if not using Docker for Ollama)
 
 ## Setup Instructions
 
-### 1. Database (Qdrant)
-Start the vector database:
+### 1. Database & Models (Docker)
+The `docker-compose.yml` file is configured to start both Qdrant and Ollama, and it will automatically pull the required models (`llama3` and `nomic-embed-text`) on startup.
+
 ```bash
 docker-compose up -d
 ```
+*Note: The initial pull might take a few minutes depending on your internet speed.*
 
-### 2. Ollama Models
-Ensure you have the embedding and chat models pulled:
-```bash
-ollama pull nomic-embed-text
-ollama pull llama3
-```
-*Note: If you want to use different models, update `backend/.env`.*
+### 2. Backend
+Navigate to the `backend` folder and set up your environment.
 
-### 3. Backend
-Navigate to `backend` folder:
+**Option A: Using Conda (Recommended)**
 ```bash
 cd backend
-# Create environment from yml
 conda env create -f environment.yml
-# Activate
 conda activate hr-policy-rag
+```
 
+**Option B: Using Pip**
+```bash
+cd backend
+python -m venv venv
+# Windows:
+.\venv\Scripts\activate
+# Linux/macOS:
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+#### Environment Configuration
+Create a `.env` file from the example:
+```bash
+cp .env.example .env
+```
+*(On Windows PowerShell: `copy .env.example .env`)*
+
+#### Run Backend
+```bash
 python main.py
 ```
 Backend will run at `http://localhost:8000`.
 
-### 4. Frontend
+### 3. Frontend
 Navigate to `frontend` folder (in a new terminal):
 ```bash
 cd frontend
@@ -60,15 +67,15 @@ pnpm dev
 ```
 Frontend will run at `http://localhost:3000`.
 
-## Usage
-1. Open `http://localhost:3000`.
-2. Upload PDF or DOCX files via the sidebar.
-3. Wait for "Uploading..." to finish (this includes MarkItDown parsing and Agentic Chunking).
-4. Start asking questions in the chat window.
-
 ## Testing
 Run the backend test suite:
+
+**PowerShell (Windows):**
+```powershell
+$env:PYTHONPATH = "backend"; pytest backend/tests -v
+```
+
+**Bash (Linux/macOS):**
 ```bash
-$env:PYTHONPATH = "backend"
-pytest backend/tests -v
+PYTHONPATH=backend pytest backend/tests -v
 ```

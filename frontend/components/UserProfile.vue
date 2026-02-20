@@ -5,7 +5,8 @@ import {
   Bell, 
   Lock, 
   ChevronRight,
-  Camera
+  Camera,
+  ShieldCheck
 } from 'lucide-vue-next'
 
 const user = {

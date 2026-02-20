@@ -119,7 +119,11 @@ async def chat(request: ChatRequest):
         
         return StreamingResponse(
             stream_chat_with_doc(request.question, history_tuples),
-            media_type="text/plain"
+            media_type="text/plain",
+            headers={
+                "Cache-Control": "no-cache",
+                "X-Accel-Buffering": "no",
+            }
         )
     except Exception as e:
         import traceback

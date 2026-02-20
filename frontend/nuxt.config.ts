@@ -5,11 +5,6 @@ export default defineNuxtConfig({
     '@nuxtjs/tailwindcss',
     '@pinia/nuxt'
   ],
-  tailwindcss: {
-    config: {
-      plugins: [require('@tailwindcss/typography')],
-    }
-  },
   runtimeConfig: {
     public: {
       apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:8000'

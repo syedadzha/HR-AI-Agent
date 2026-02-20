@@ -16,7 +16,8 @@ CHAT_MODEL = os.getenv("CHAT_MODEL", "llama3")
 llm = ChatOllama(
     base_url=OLLAMA_BASE_URL,
     model=CHAT_MODEL,
-    temperature=0
+    temperature=0,
+    streaming=True
 )
 
 def get_rag_chain():

@@ -20,6 +20,7 @@ def test_qdrant_connectivity():
     except Exception as e:
         pytest.fail(f"Failed to connect to Qdrant: {e}")
 
+@pytest.mark.skipif(os.getenv("CI") == "true", reason="Skipping Ollama test in CI environment")
 def test_ollama_embeddings():
     """Test if Ollama embeddings are working."""
     embeddings = OllamaEmbeddings(
@@ -33,6 +34,7 @@ def test_ollama_embeddings():
     except Exception as e:
         pytest.fail(f"Failed to get embeddings from Ollama: {e}")
 
+@pytest.mark.skipif(os.getenv("CI") == "true", reason="Skipping Ollama test in CI environment")
 def test_ollama_chat():
     """Test if Ollama chat model is working."""
     llm = ChatOllama(

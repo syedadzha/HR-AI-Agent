@@ -67,6 +67,51 @@ pnpm dev
 ```
 Frontend will run at `http://localhost:3000`.
 
+## Code Quality & Formatting
+
+To maintain high standards and consistency, we use a specialized toolset for both the frontend and backend.
+
+### **Frontend (Nuxt 3)**
+We use **ESLint** (v10 Flat Config) for code analysis, **Prettier** for formatting, and **Tailwind CSS Linter** to enforce utility class ordering.
+
+- **Check for issues:**
+  ```bash
+  cd frontend
+  pnpm lint
+  ```
+- **Auto-fix issues:**
+  ```bash
+  pnpm lint:fix
+  ```
+- **Format code:**
+  ```bash
+  pnpm format
+  ```
+
+### **Backend (FastAPI)**
+We use **Ruff** for lightning-fast linting and formatting, and **MyPy** for strict static type checking.
+
+- **Lint and Auto-fix:**
+  ```bash
+  cd backend
+  conda activate hr-policy-rag
+  ruff check . --fix
+  ```
+- **Format code:**
+  ```bash
+  ruff format .
+  ```
+- **Type Check:**
+  ```bash
+  mypy . --config-file pyproject.toml
+  ```
+
+### **Automated Pre-commit Hooks**
+We use **Husky** and **lint-staged**. On every `git commit`, the system automatically:
+1. Lints and formats changed frontend files.
+2. Lints, formats, and checks types for changed backend files.
+*The commit will fail if errors are found, ensuring the codebase stays clean.*
+
 ## Testing
 Run the backend test suite:
 

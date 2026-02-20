@@ -1,0 +1,22 @@
+{
+  "name": "ds-agents",
+  "version": "1.0.0",
+  "description": "Monorepo for HR Policy RAG System",
+  "scripts": {
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "frontend/**/*.{js,ts,vue}": [
+      "pnpm --prefix frontend eslint --fix",
+      "pnpm --prefix frontend prettier --write"
+    ],
+    "backend/**/*.py": [
+      "ruff check --fix --config backend/pyproject.toml",
+      "ruff format --config backend/pyproject.toml"
+    ]
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7"
+  }
+}

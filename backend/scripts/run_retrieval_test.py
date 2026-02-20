@@ -1,6 +1,7 @@
 import json
-import httpx
 import time
+
+import httpx
 
 # Questions derived from handbook_content.md
 # ... (rest of the file remains similar but using httpx)
@@ -34,65 +35,66 @@ QUESTIONS = [
     "What is the retirement age specified in the handbook?",
     "How many days of annual leave is an employee with 3 years of service entitled to?",
     "How many days in advance must an employee submit a leave request?",
-    "How many days of unutilised annual leave can be carried forward to the next year?"
+    "How many days of unutilised annual leave can be carried forward to the next year?",
 ]
+
 
 def test_retrieval():
     url = "http://localhost:8000/chat/blocking"
     results = []
-    
+
     print(f"Starting retrieval test with {len(QUESTIONS)} questions...")
-    
+
     for i, q in enumerate(QUESTIONS):
-        print(f"[{i+1}/30] Asking: {q}")
-        payload = {
-            "question": q,
-            "history": []
-        }
+        print(f"[{i + 1}/30] Asking: {q}")
+        payload = {"question": q, "history": []}
         try:
             start_time = time.time()
             with httpx.Client() as client:
                 response = client.post(url, json=payload, timeout=30.0)
             end_time = time.time()
-            
+
             print(f"DEBUG: Status Code: {response.status_code}")
-            
+
             if response.status_code == 200:
                 try:
                     answer = response.json().get("answer", "No answer field")
-                    results.append({
-                        "question": q,
-                        "answer": answer,
-                        "latency": f"{end_time - start_time:.2f}s",
-                        "status": "PASS"
-                    })
+                    results.append(
+                        {
+                            "question": q,
+                            "answer": answer,
+                            "latency": f"{end_time - start_time:.2f}s",
+                            "status": "PASS",
+                        }
+                    )
                 except Exception as json_err:
                     print(f"DEBUG: JSON Error: {json_err}")
                     print(f"DEBUG: Raw Content: {response.content[:200]}")
-                    results.append({
-                        "question": q,
-                        "error": f"JSON Decode Error: {json_err}",
-                        "raw_content": response.text[:500],
-                        "status": "FAIL"
-                    })
+                    results.append(
+                        {
+                            "question": q,
+                            "error": f"JSON Decode Error: {json_err}",
+                            "raw_content": response.text[:500],
+                            "status": "FAIL",
+                        }
+                    )
             else:
-                results.append({
-                    "question": q,
-                    "error": f"HTTP {response.status_code}",
-                    "raw_content": response.text[:500],
-                    "status": "FAIL"
-                })
+                results.append(
+                    {
+                        "question": q,
+                        "error": f"HTTP {response.status_code}",
+                        "raw_content": response.text[:500],
+                        "status": "FAIL",
+                    }
+                )
         except Exception as e:
-            results.append({
-                "question": q,
-                "error": str(e),
-                "status": "ERROR"
-            })
-    
+            results.append({"question": q, "error": str(e), "status": "ERROR"})
+
     with open("retrieval_test_results.json", "w", encoding="utf-8") as f:
         json.dump(results, f, indent=2)
-    
+
     print("\nTest Complete. Results saved to retrieval_test_results.json")
+
 
 if __name__ == "__main__":
     test_retrieval()

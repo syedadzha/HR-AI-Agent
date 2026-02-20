@@ -23,6 +23,7 @@ dist/
 
 # Project Specific
 qdrant_storage/
+ollama_storage/
 backend/data/*
 !backend/data/.gitkeep
 *.skill

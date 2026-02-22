@@ -10,7 +10,7 @@ from ingest import delete_file_from_index, process_and_index_file
 DATA_DIR = "data"
 
 
-def handle_upload_file(file: UploadFile):
+def handle_upload_file(file: UploadFile) -> dict:
     """
     Saves, processes, and indexes an uploaded file, then cleans up.
     Returns the metadata record of the new file.
@@ -24,7 +24,7 @@ def handle_upload_file(file: UploadFile):
         # Process and Index
         file_id = process_and_index_file(file_location, str(file.filename))
 
-        # Create record
+        # Create record (matches FileRecord Pydantic model)
         record = {
             "file_id": file_id,
             "filename": str(file.filename),

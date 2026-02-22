@@ -1,6 +1,8 @@
 import os
 import logging
 from dotenv import load_dotenv
+from typing import Annotated
+
 from fastapi import Depends, FastAPI, File, HTTPException, Security, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
@@ -37,14 +39,18 @@ initialize_db()
 # --- Security ---
 API_KEY = os.getenv("SECRET_KEY", "default-secret-key")
 if API_KEY == "your_secret_key_here" or API_KEY == "default-secret-key":
-    logger.warning("Using default or placeholder secret key. Please set a strong SECRET_KEY in your .env file.")
+    logger.warning(
+        "Using default or placeholder secret key. "
+        "Please set a strong SECRET_KEY in your .env file."
+    )
 
 api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
 
 async def get_api_key(api_key: str = Security(api_key_header)):
     if not api_key or api_key != API_KEY:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Could not validate credentials"
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail="Could not validate credentials"
         )
     return api_key
 
@@ -64,17 +70,23 @@ class FileRecord(BaseModel):
 
 # --- API Endpoints ---
 @app.post("/upload", response_model=FileRecord, dependencies=[Depends(get_api_key)])
-async def upload_file(file: UploadFile = File(...)):
+async def upload_file(file: Annotated[UploadFile, File()]):
     logger.info(f"Received file upload request for: {file.filename}")
     try:
         record = handle_upload_file(file)
-        logger.info(f"Successfully processed and indexed file: {file.filename} with file_id: {record['file_id']}")
+        logger.info(
+            f"Successfully processed and indexed file: {file.filename} "
+            f"with file_id: {record['file_id']}"
+        )
         return record
     except Exception as e:
-        logger.exception(f"Error processing upload for file: {file.filename}", exc_info=e)
+        logger.exception(
+            f"Error processing upload for file: {file.filename}", 
+            exc_info=e
+        )
         raise HTTPException(status_code=500, detail=str(e)) from e
 
-@app.get("/files", response_model=list[FileRecord])
+@app.get("/files", response_model=list[FileRecord], dependencies=[Depends(get_api_key)])
 async def list_files():
     logger.info("Received request to list files.")
     return get_all_files_metadata()
@@ -90,7 +102,7 @@ async def delete_file(file_id: str):
         logger.exception(f"Error deleting file: {file_id}", exc_info=e)
         raise HTTPException(status_code=500, detail=str(e)) from e
 
-@app.post("/chat")
+@app.post("/chat", dependencies=[Depends(get_api_key)])
 async def chat(request: ChatRequest) -> StreamingResponse:
     logger.info("Received request for streaming chat.")
     try:
@@ -104,7 +116,7 @@ async def chat(request: ChatRequest) -> StreamingResponse:
         logger.exception("Error during streaming chat.", exc_info=e)
         raise HTTPException(status_code=500, detail=str(e)) from e
 
-@app.post("/chat/blocking")
+@app.post("/chat/blocking", dependencies=[Depends(get_api_key)])
 async def chat_blocking(request: ChatRequest) -> dict[str, str]:
     logger.info("Received request for blocking chat.")
     try:

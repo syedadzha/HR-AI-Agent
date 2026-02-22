@@ -48,19 +48,19 @@ const features = [
 <template>
   <div class="min-h-screen bg-white selection:bg-indigo-100 selection:text-indigo-700">
     <!-- Navbar -->
-    <nav class="fixed top-0 w-full z-40 bg-white/80 backdrop-blur-md border-b border-slate-100">
-      <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+    <nav class="fixed top-0 z-40 w-full border-b border-slate-100 bg-white/80 backdrop-blur-md">
+      <div class="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
         <div class="flex items-center gap-3">
-          <div class="bg-indigo-600 p-2 rounded-xl">
-            <ShieldCheck class="w-6 h-6 text-white" />
+          <div class="rounded-xl bg-indigo-600 p-2">
+            <ShieldCheck class="size-6 text-white" />
           </div>
           <span class="text-xl font-bold tracking-tight">HR Guard</span>
         </div>
         
-        <div class="hidden md:flex items-center gap-10">
-          <a href="#features" class="text-sm font-semibold text-slate-600 hover:text-indigo-600 transition-colors">Features</a>
-          <a href="#how-it-works" class="text-sm font-semibold text-slate-600 hover:text-indigo-600 transition-colors">Technology</a>
-          <button @click="$emit('getStarted')" class="px-6 py-2.5 bg-slate-900 text-white text-sm font-bold rounded-xl hover:bg-slate-800 transition-all active:scale-95 shadow-lg shadow-slate-200">
+        <div class="hidden items-center gap-10 md:flex">
+          <a href="#features" class="text-sm font-semibold text-slate-600 transition-colors hover:text-indigo-600">Features</a>
+          <a href="#how-it-works" class="text-sm font-semibold text-slate-600 transition-colors hover:text-indigo-600">Technology</a>
+          <button class="rounded-xl bg-slate-900 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-slate-200 transition-all hover:bg-slate-800 active:scale-95" @click="$emit('getStarted')">
             Sign In
           </button>
         </div>
@@ -68,47 +68,47 @@ const features = [
     </nav>
 
     <!-- Hero Section -->
-    <header class="pt-40 pb-20 px-6 overflow-hidden">
-      <div class="max-w-7xl mx-auto text-center relative">
+    <header class="overflow-hidden px-6 pb-20 pt-40">
+      <div class="relative mx-auto max-w-7xl text-center">
         <!-- Abstract Background Blobs -->
-        <div class="absolute -top-24 -left-20 w-72 h-72 bg-indigo-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
-        <div class="absolute -top-24 -right-20 w-72 h-72 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse delay-700"></div>
+        <div class="absolute -left-20 -top-24 size-72 animate-pulse rounded-full bg-indigo-100 opacity-30 mix-blend-multiply blur-3xl"></div>
+        <div class="absolute -right-20 -top-24 size-72 animate-pulse rounded-full bg-purple-100 opacity-30 mix-blend-multiply blur-3xl delay-700"></div>
 
-        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 text-xs font-bold uppercase tracking-widest mb-8 animate-in fade-in slide-in-from-top-4 duration-1000">
-          <Sparkles class="w-4 h-4" />
+        <div class="animate-in fade-in slide-in-from-top-4 mb-8 inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-indigo-50 px-4 py-2 text-xs font-bold uppercase tracking-widest text-indigo-600 duration-1000">
+          <Sparkles class="size-4" />
           Next-Gen HR Policy Intelligence
         </div>
         
-        <h1 class="text-6xl md:text-7xl font-extrabold text-slate-900 tracking-tight leading-[1.1] mb-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+        <h1 class="animate-in fade-in slide-in-from-bottom-4 mb-8 text-6xl font-extrabold leading-[1.1] tracking-tight text-slate-900 duration-1000 md:text-7xl">
           Your company policies, <br />
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">now fully conversational.</span>
+          <span class="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">now fully conversational.</span>
         </h1>
         
-        <p class="max-w-2xl mx-auto text-xl text-slate-500 leading-relaxed mb-12 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-200">
+        <p class="animate-in fade-in slide-in-from-bottom-4 mx-auto mb-12 max-w-2xl text-xl leading-relaxed text-slate-500 delay-200 duration-1000">
           Empower your employees with instant, accurate answers to policy questions. HR Guard uses advanced RAG technology to turn static handbooks into interactive assets.
         </p>
 
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300">
+        <div class="animate-in fade-in slide-in-from-bottom-4 flex flex-col items-center justify-center gap-4 delay-300 duration-1000 sm:flex-row">
           <button 
+            class="group flex items-center gap-2 rounded-2xl bg-indigo-600 px-10 py-5 text-lg font-bold text-white shadow-xl shadow-indigo-200 transition-all hover:-translate-y-1 hover:bg-indigo-700"
             @click="$emit('getStarted')"
-            class="group flex items-center gap-2 px-10 py-5 bg-indigo-600 text-white text-lg font-bold rounded-2xl hover:bg-indigo-700 hover:-translate-y-1 transition-all shadow-xl shadow-indigo-200"
           >
             Launch Assistant
-            <ArrowRight class="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            <ArrowRight class="size-5 transition-transform group-hover:translate-x-1" />
           </button>
-          <button class="px-10 py-5 bg-white text-slate-900 text-lg font-bold rounded-2xl border border-slate-200 hover:bg-slate-50 transition-all">
+          <button class="rounded-2xl border border-slate-200 bg-white px-10 py-5 text-lg font-bold text-slate-900 transition-all hover:bg-slate-50">
             Book a Demo
           </button>
         </div>
 
         <!-- Dashboard Preview -->
-        <div class="mt-24 relative max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500">
-          <div class="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-[3rem] opacity-20 blur-2xl"></div>
-          <div class="relative bg-slate-900 rounded-[2.5rem] p-4 shadow-2xl overflow-hidden border border-white/10">
-            <div class="flex gap-2 mb-4 px-2">
-              <div class="w-3 h-3 rounded-full bg-rose-500/50"></div>
-              <div class="w-3 h-3 rounded-full bg-amber-500/50"></div>
-              <div class="w-3 h-3 rounded-full bg-emerald-500/50"></div>
+        <div class="animate-in fade-in slide-in-from-bottom-8 relative mx-auto mt-24 max-w-5xl delay-500 duration-1000">
+          <div class="absolute -inset-1 rounded-[3rem] bg-gradient-to-r from-indigo-500 to-purple-600 opacity-20 blur-2xl"></div>
+          <div class="relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-slate-900 p-4 shadow-2xl">
+            <div class="mb-4 flex gap-2 px-2">
+              <div class="size-3 rounded-full bg-rose-500/50"></div>
+              <div class="size-3 rounded-full bg-amber-500/50"></div>
+              <div class="size-3 rounded-full bg-emerald-500/50"></div>
             </div>
             <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=2070" class="rounded-2xl opacity-80" />
           </div>
@@ -117,65 +117,65 @@ const features = [
     </header>
 
     <!-- Features Grid -->
-    <section id="features" class="py-32 bg-slate-50">
-      <div class="max-w-7xl mx-auto px-6">
-        <div class="text-center mb-20">
-          <h2 class="text-4xl font-bold text-slate-900 tracking-tight">Built for Enterprise Accuracy</h2>
-          <p class="text-slate-500 mt-4 text-lg">We didn't just build another chatbot. We built a precision retrieval engine.</p>
+    <section id="features" class="bg-slate-50 py-32">
+      <div class="mx-auto max-w-7xl px-6">
+        <div class="mb-20 text-center">
+          <h2 class="text-4xl font-bold tracking-tight text-slate-900">Built for Enterprise Accuracy</h2>
+          <p class="mt-4 text-lg text-slate-500">We didn't just build another chatbot. We built a precision retrieval engine.</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
           <div 
             v-for="feature in features" 
             :key="feature.title"
-            class="bg-white p-8 rounded-[2rem] border border-slate-100 hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
+            class="rounded-[2rem] border border-slate-100 bg-white p-8 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl"
           >
-            <div :class="[feature.bg, feature.color]" class="w-14 h-14 rounded-2xl flex items-center justify-center mb-6">
-              <component :is="feature.icon" class="w-7 h-7" />
+            <div :class="[feature.bg, feature.color]" class="mb-6 flex size-14 items-center justify-center rounded-2xl">
+              <component :is="feature.icon" class="size-7" />
             </div>
-            <h3 class="text-xl font-bold text-slate-900 mb-3">{{ feature.title }}</h3>
-            <p class="text-slate-500 leading-relaxed text-sm font-medium">{{ feature.desc }}</p>
+            <h3 class="mb-3 text-xl font-bold text-slate-900">{{ feature.title }}</h3>
+            <p class="text-sm font-medium leading-relaxed text-slate-500">{{ feature.desc }}</p>
           </div>
         </div>
       </div>
     </section>
 
     <!-- Stats -->
-    <section class="py-24 bg-indigo-600">
-      <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+    <section class="bg-indigo-600 py-24">
+      <div class="mx-auto grid max-w-7xl grid-cols-1 gap-12 px-6 text-center md:grid-cols-3">
         <div>
-          <p class="text-5xl font-extrabold text-white mb-2">99.8%</p>
-          <p class="text-indigo-100 font-bold uppercase tracking-widest text-xs">Retrieval Accuracy</p>
+          <p class="mb-2 text-5xl font-extrabold text-white">99.8%</p>
+          <p class="text-xs font-bold uppercase tracking-widest text-indigo-100">Retrieval Accuracy</p>
         </div>
         <div>
-          <p class="text-5xl font-extrabold text-white mb-2">&lt;2s</p>
-          <p class="text-indigo-100 font-bold uppercase tracking-widest text-xs">Response Time</p>
+          <p class="mb-2 text-5xl font-extrabold text-white">&lt;2s</p>
+          <p class="text-xs font-bold uppercase tracking-widest text-indigo-100">Response Time</p>
         </div>
         <div>
-          <p class="text-5xl font-extrabold text-white mb-2">100%</p>
-          <p class="text-indigo-100 font-bold uppercase tracking-widest text-xs">Local Data Sovereignty</p>
+          <p class="mb-2 text-5xl font-extrabold text-white">100%</p>
+          <p class="text-xs font-bold uppercase tracking-widest text-indigo-100">Local Data Sovereignty</p>
         </div>
       </div>
     </section>
 
     <!-- Footer -->
-    <footer class="py-20 border-t border-slate-100 bg-white">
-      <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-10">
+    <footer class="border-t border-slate-100 bg-white py-20">
+      <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-10 px-6 md:flex-row">
         <div class="flex items-center gap-3">
-          <div class="bg-indigo-600 p-2 rounded-xl">
-            <ShieldCheck class="w-5 h-5 text-white" />
+          <div class="rounded-xl bg-indigo-600 p-2">
+            <ShieldCheck class="size-5 text-white" />
           </div>
           <span class="text-lg font-bold tracking-tight">HR Guard</span>
         </div>
         
-        <p class="text-slate-400 text-sm font-medium text-center">
+        <p class="text-center text-sm font-medium text-slate-400">
           © 2026 HR Guard AI. All rights reserved. Built with advanced Agentic Chunking technology.
         </p>
 
         <div class="flex gap-8">
-          <a href="#" class="text-slate-400 hover:text-indigo-600 transition-colors">Twitter</a>
-          <a href="#" class="text-slate-400 hover:text-indigo-600 transition-colors">LinkedIn</a>
-          <a href="#" class="text-slate-400 hover:text-indigo-600 transition-colors">Privacy</a>
+          <a href="#" class="text-slate-400 transition-colors hover:text-indigo-600">Twitter</a>
+          <a href="#" class="text-slate-400 transition-colors hover:text-indigo-600">LinkedIn</a>
+          <a href="#" class="text-slate-400 transition-colors hover:text-indigo-600">Privacy</a>
         </div>
       </div>
     </footer>

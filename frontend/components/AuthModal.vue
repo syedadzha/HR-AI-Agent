@@ -8,55 +8,55 @@ const toggleMode = () => isLogin.value = !isLogin.value
 </script>
 
 <template>
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
-    <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-slate-100 animate-in fade-in zoom-in duration-300">
-      <div class="p-8 relative">
-        <button @click="$emit('close')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors">
-          <X class="w-6 h-6" />
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm">
+    <div class="animate-in fade-in zoom-in w-full max-w-md overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-2xl duration-300">
+      <div class="relative p-8">
+        <button class="absolute right-6 top-6 text-slate-400 transition-colors hover:text-slate-600" @click="$emit('close')">
+          <X class="size-6" />
         </button>
 
-        <div class="text-center mb-10">
-          <div class="inline-flex items-center justify-center w-16 h-16 bg-indigo-50 rounded-2xl mb-4">
-            <ShieldCheck class="w-8 h-8 text-indigo-600" />
+        <div class="mb-10 text-center">
+          <div class="mb-4 inline-flex size-16 items-center justify-center rounded-2xl bg-indigo-50">
+            <ShieldCheck class="size-8 text-indigo-600" />
           </div>
           <h2 class="text-2xl font-bold text-slate-900">{{ isLogin ? 'Welcome back' : 'Create an account' }}</h2>
-          <p class="text-slate-500 mt-2">{{ isLogin ? 'Secure access to your policy data' : 'Start managing your HR policies effortlessly' }}</p>
+          <p class="mt-2 text-slate-500">{{ isLogin ? 'Secure access to your policy data' : 'Start managing your HR policies effortlessly' }}</p>
         </div>
 
-        <form @submit.prevent class="space-y-4">
+        <form class="space-y-4" @submit.prevent>
           <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-1.5 ml-1">Work Email</label>
+            <label class="mb-1.5 ml-1 block text-sm font-semibold text-slate-700">Work Email</label>
             <div class="relative">
-              <Mail class="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
+              <Mail class="absolute left-4 top-3.5 size-5 text-slate-400" />
               <input 
                 type="email" 
                 placeholder="name@company.com" 
-                class="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 py-3.5 pl-12 pr-4 transition-all placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
               />
             </div>
           </div>
 
           <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-1.5 ml-1">Password</label>
+            <label class="mb-1.5 ml-1 block text-sm font-semibold text-slate-700">Password</label>
             <div class="relative">
-              <Lock class="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
+              <Lock class="absolute left-4 top-3.5 size-5 text-slate-400" />
               <input 
                 type="password" 
                 placeholder="••••••••" 
-                class="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 py-3.5 pl-12 pr-4 transition-all placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
               />
             </div>
           </div>
 
-          <button class="w-full py-4 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:-translate-y-0.5 active:translate-y-0 transition-all">
+          <button class="w-full rounded-xl bg-indigo-600 py-4 font-bold text-white shadow-lg shadow-indigo-200 transition-all hover:-translate-y-0.5 hover:bg-indigo-700 active:translate-y-0">
             {{ isLogin ? 'Sign In' : 'Create Account' }}
           </button>
         </form>
 
-        <div class="mt-8 pt-6 border-t border-slate-100 text-center">
+        <div class="mt-8 border-t border-slate-100 pt-6 text-center">
           <p class="text-sm text-slate-600">
             {{ isLogin ? "Don't have an account?" : "Already have an account?" }}
-            <button @click="toggleMode" class="text-indigo-600 font-bold hover:underline">
+            <button class="font-bold text-indigo-600 hover:underline" @click="toggleMode">
               {{ isLogin ? 'Sign up' : 'Sign in' }}
             </button>
           </p>

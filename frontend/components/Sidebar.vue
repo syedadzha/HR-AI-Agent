@@ -20,55 +20,55 @@ const user = ref({
 </script>
 
 <template>
-  <aside class="w-72 bg-slate-50 border-r border-slate-200 flex flex-col h-screen transition-all duration-300">
+  <aside class="flex h-screen w-72 flex-col border-r border-slate-200 bg-slate-50 transition-all duration-300">
     <!-- Logo -->
-    <div class="p-6 flex items-center gap-3">
-      <div class="bg-indigo-600 p-2 rounded-xl">
-        <ShieldCheck class="w-6 h-6 text-white" />
+    <div class="flex items-center gap-3 p-6">
+      <div class="rounded-xl bg-indigo-600 p-2">
+        <ShieldCheck class="size-6 text-white" />
       </div>
-      <h1 class="text-xl font-bold text-slate-900 tracking-tight">HR Guard</h1>
+      <h1 class="text-xl font-bold tracking-tight text-slate-900">HR Guard</h1>
     </div>
 
     <!-- Main Nav -->
-    <nav class="flex-1 px-4 space-y-1">
+    <nav class="flex-1 space-y-1 px-4">
       <button 
+        :class="[activeTab === 'chat' ? 'border-slate-200 bg-white text-indigo-600 shadow-sm' : 'text-slate-600 hover:bg-slate-100']"
+        class="flex w-full items-center gap-3 rounded-xl border border-transparent px-4 py-3 font-medium transition-all"
         @click="$emit('setTab', 'chat')"
-        :class="[activeTab === 'chat' ? 'bg-white shadow-sm text-indigo-600 border-slate-200' : 'text-slate-600 hover:bg-slate-100']"
-        class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium border border-transparent"
       >
-        <MessageSquare class="w-5 h-6" />
+        <MessageSquare class="h-6 w-5" />
         Chat Assistant
       </button>
 
       <button 
+        :class="[activeTab === 'files' ? 'border-slate-200 bg-white text-indigo-600 shadow-sm' : 'text-slate-600 hover:bg-slate-100']"
+        class="flex w-full items-center gap-3 rounded-xl border border-transparent px-4 py-3 font-medium transition-all"
         @click="$emit('setTab', 'files')"
-        :class="[activeTab === 'files' ? 'bg-white shadow-sm text-indigo-600 border-slate-200' : 'text-slate-600 hover:bg-slate-100']"
-        class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium border border-transparent"
       >
-        <Files class="w-5 h-6" />
+        <Files class="h-6 w-5" />
         Policy Library
       </button>
     </nav>
 
     <!-- User Profile Section -->
-    <div class="p-4 border-t border-slate-200">
+    <div class="border-t border-slate-200 p-4">
       <button 
+        class="group flex w-full items-center gap-3 rounded-xl p-3 text-left transition-all hover:bg-slate-100"
         @click="$emit('setTab', 'profile')"
-        class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-100 transition-all group text-left"
       >
-        <img :src="user.avatar" class="w-10 h-10 rounded-full border border-slate-200 shadow-sm" />
+        <img :src="user.avatar" class="size-10 rounded-full border border-slate-200 shadow-sm" />
         <div class="flex-1 overflow-hidden text-ellipsis">
           <p class="text-sm font-semibold text-slate-900">{{ user.name }}</p>
-          <p class="text-xs text-slate-500 truncate">{{ user.email }}</p>
+          <p class="truncate text-xs text-slate-500">{{ user.email }}</p>
         </div>
-        <Settings class="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
+        <Settings class="size-4 text-slate-400 group-hover:text-slate-600" />
       </button>
       
       <button 
+        class="mt-4 flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm transition-all hover:bg-slate-50 hover:text-indigo-600"
         @click="$emit('openAuth')"
-        class="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:text-indigo-600 transition-all shadow-sm"
       >
-        <LogOut class="w-4 h-4" />
+        <LogOut class="size-4" />
         Sign Out
       </button>
     </div>

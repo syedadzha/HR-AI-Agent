@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { 
   Send, 
   Bot, 
@@ -8,6 +8,7 @@ import {
   Info
 } from 'lucide-vue-next'
 import MarkdownIt from 'markdown-it'
+import { useChatStore } from '~/stores/useChatStore'
 
 const md = new MarkdownIt({
   html: true,
@@ -15,92 +16,68 @@ const md = new MarkdownIt({
   typographer: true
 })
 
+const chatStore = useChatStore()
 const question = ref('')
-const history = ref([
-  { role: 'assistant', content: "Hello! I'm your AI HR Assistant. I've indexed your latest company policies. How can I help you today?" }
-])
-const isLoading = ref(false)
 
 const askQuestion = async () => {
-  if (!question.value.trim() || isLoading.value) return
-
-  const userMsg = { role: 'user', content: question.value }
-  history.value.push(userMsg)
+  if (!question.value.trim() || chatStore.isLoading) return
   const currentQuestion = question.value
   question.value = ''
-  isLoading.value = true
+  await chatStore.sendMessage(currentQuestion)
+}
 
-  try {
-    const response = await fetch('http://localhost:8000/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ question: currentQuestion, history: history.value.slice(0, -1) })
-    })
-
-    const assistantMsg = { role: 'assistant', content: '' }
-    const newMsgIndex = history.value.push(assistantMsg) - 1
-
-    const reader = response.body.getReader()
-    const decoder = new TextDecoder()
-    
-    while (true) {
-      const { done, value } = await reader.read()
-      if (done) break
-      
-      const chunk = decoder.decode(value, { stream: true })
-      history.value[newMsgIndex].content += chunk
-    }
-  } catch (error) {
-    console.error('Chat error:', error)
-  } finally {
-    isLoading.value = false
-  }
+const clearHistory = () => {
+  chatStore.$reset()
 }
 </script>
 
 <template>
-  <div class="flex flex-col h-full max-w-5xl mx-auto w-full px-4 lg:px-8">
+  <div class="mx-auto flex size-full max-w-5xl flex-col px-4 lg:px-8">
     <!-- Chat Header -->
-    <header class="py-6 border-b border-slate-100 flex items-center justify-between">
+    <header class="flex items-center justify-between border-b border-slate-100 py-6">
       <div class="flex items-center gap-3">
-        <div class="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
-          <Sparkles class="w-5 h-5" />
+        <div class="rounded-xl bg-indigo-50 p-2 text-indigo-600">
+          <Sparkles class="size-5" />
         </div>
         <div>
-          <h2 class="font-bold text-slate-900 leading-none">Policy Assistant</h2>
-          <span class="text-[10px] text-green-500 font-bold uppercase tracking-widest flex items-center gap-1 mt-1">
-            <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+          <h2 class="font-bold leading-none text-slate-900">Policy Assistant</h2>
+          <span class="mt-1 flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-green-500">
+            <span class="size-1.5 animate-pulse rounded-full bg-green-500"></span>
             System Ready
           </span>
         </div>
       </div>
-      <button class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all">
-        <RefreshCcw class="w-5 h-5" />
+      <button 
+        class="rounded-xl p-2 text-slate-400 transition-all hover:bg-indigo-50 hover:text-indigo-600"
+        title="Clear chat history"
+        @click="clearHistory"
+      >
+        <RefreshCcw class="size-5" />
       </button>
     </header>
 
     <!-- Messages -->
-    <div class="flex-1 overflow-y-auto py-8 space-y-8 no-scrollbar">
+    <div class="no-scrollbar flex-1 space-y-8 overflow-y-auto py-8">
       <div 
-        v-for="(msg, i) in history" 
+        v-for="(msg, i) in chatStore.history" 
         :key="i"
-        class="flex gap-4 animate-in fade-in slide-in-from-bottom-2 duration-300"
+        class="animate-in fade-in slide-in-from-bottom-2 flex gap-4 duration-300"
         :class="[msg.role === 'user' ? 'flex-row-reverse' : '']"
       >
         <div 
-          class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-sm"
-          :class="[msg.role === 'user' ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600 border border-slate-200']"
+          class="flex size-10 shrink-0 items-center justify-center rounded-2xl shadow-sm"
+          :class="[msg.role === 'user' ? 'bg-indigo-600 text-white' : 'border border-slate-200 bg-slate-100 text-slate-600']"
         >
-          <User v-if="msg.role === 'user'" class="w-5 h-5" />
-          <Bot v-else class="w-5 h-5" />
+          <User v-if="msg.role === 'user'" class="size-5" />
+          <Bot v-else class="size-5" />
         </div>
 
         <div 
-          class="max-w-[80%] rounded-3xl px-6 py-4 shadow-sm leading-relaxed text-sm"
+          class="max-w-[80%] rounded-3xl px-6 py-4 text-sm leading-relaxed shadow-sm"
           :class="[
             msg.role === 'user' 
-              ? 'bg-indigo-600 text-white rounded-tr-none font-medium whitespace-pre-wrap' 
-              : 'bg-white text-slate-700 border border-slate-100 rounded-tl-none prose prose-slate prose-sm max-w-none'
+              ? 'whitespace-pre-wrap rounded-tr-none bg-indigo-600 font-medium text-white' 
+              : 'prose prose-sm prose-slate max-w-none rounded-tl-none border border-slate-100 bg-white text-slate-700'
           ]"
         >
           <template v-if="msg.role === 'user'">
@@ -110,34 +87,34 @@ const askQuestion = async () => {
         </div>
       </div>
       
-      <div v-if="isLoading && !history[history.length-1].content" class="flex gap-4 animate-pulse">
-        <div class="w-10 h-10 bg-slate-100 rounded-2xl border border-slate-200"></div>
-        <div class="h-12 bg-slate-50 w-24 rounded-3xl rounded-tl-none border border-slate-100"></div>
+      <div v-if="chatStore.isLoading && !chatStore.history[chatStore.history.length-1].content" class="flex animate-pulse gap-4">
+        <div class="size-10 rounded-2xl border border-slate-200 bg-slate-100"></div>
+        <div class="h-12 w-24 rounded-3xl rounded-tl-none border border-slate-100 bg-slate-50"></div>
       </div>
     </div>
 
     <!-- Input Section -->
     <div class="pb-10 pt-4">
-      <div class="relative group">
-        <div class="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-[2rem] blur opacity-10 group-focus-within:opacity-25 transition duration-1000 group-hover:duration-200"></div>
-        <div class="relative bg-white border border-slate-200 rounded-3xl shadow-xl p-2 transition-all group-focus-within:border-indigo-300 group-focus-within:ring-4 group-focus-within:ring-indigo-50">
-          <form @submit.prevent="askQuestion" class="flex items-center gap-2">
+      <div class="group relative">
+        <div class="absolute -inset-1 rounded-[2rem] bg-gradient-to-r from-indigo-500 to-purple-500 opacity-10 blur transition duration-1000 group-focus-within:opacity-25 group-hover:duration-200"></div>
+        <div class="relative rounded-3xl border border-slate-200 bg-white p-2 shadow-xl transition-all group-focus-within:border-indigo-300 group-focus-within:ring-4 group-focus-within:ring-indigo-50">
+          <form class="flex items-center gap-2" @submit.prevent="askQuestion">
             <input 
               v-model="question"
               placeholder="Ask anything about company policies..." 
-              class="flex-1 bg-transparent border-none focus:ring-0 focus:outline-none py-4 px-6 text-slate-700 font-medium placeholder:text-slate-400"
+              class="flex-1 border-none bg-transparent px-6 py-4 font-medium text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-0"
             />
             <button 
               type="submit"
-              :disabled="!question.trim() || isLoading"
-              class="p-4 bg-indigo-600 text-white rounded-2xl shadow-lg shadow-indigo-200 hover:bg-indigo-700 disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none transition-all"
+              :disabled="!question.trim() || chatStore.isLoading"
+              class="rounded-2xl bg-indigo-600 p-4 text-white shadow-lg shadow-indigo-200 transition-all hover:bg-indigo-700 disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none"
             >
-              <Send class="w-5 h-5" />
+              <Send class="size-5" />
             </button>
           </form>
         </div>
-        <p class="text-center text-[11px] text-slate-400 mt-4 flex items-center justify-center gap-1">
-          <Info class="w-3 h-3" />
+        <p class="mt-4 flex items-center justify-center gap-1 text-center text-[11px] text-slate-400">
+          <Info class="size-3" />
           AI can make mistakes. Verify important policy details with HR.
         </p>
       </div>

@@ -28,11 +28,15 @@ The project now includes specialized skills in `.gemini/skills/`:
 
 ## Development & Testing
 - **Setup Environment**:
-  `conda create -n hr-policy-rag python=3.11 -y; conda activate hr-policy-rag; pip install -r backend/requirements.txt`
-- **Backend Tests**: Run via `qa-suite` or manually:
-  `$env:PYTHONPATH = "backend"; conda activate hr-policy-rag; pytest backend/tests -v`
-- **DB Inspection**: Use `rag-ops` script:
-  `python .gemini/skills/rag-ops/scripts/inspect_collection.py`
+  1. Create and activate the Conda environment:
+     ```bash
+     conda create -n hr-policy-rag python=3.11 -y
+     conda activate hr-policy-rag
+     ```
+  2. Install Python dependencies:
+     ```bash
+     pip install -r backend/requirements.txt
+     ```
 
 ## Project Structure (Crucial)
 This is a monorepo. Please respect this layout:

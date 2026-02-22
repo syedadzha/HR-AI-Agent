@@ -36,4 +36,4 @@ This report summarizes the findings of a multi-agent audit (Architect, Security,
 | **HIGH** | Tighten CORS policy to only allow the frontend's specific origin. | Security Auditor |
 | **MEDIUM** | Implement Top-K adjustment and context window monitoring in `rag.py`. | Vector Expert |
 | **MEDIUM** | Refactor `main.py` to use a service-based architecture for better separation of concerns. | Architect |
-| **LOW** | Sanitize chat history before passing it to the Query Optimizer. | Security Auditor |
+| **MEDIUM** | Sanitize chat history before passing it to the Query Optimizer. | Security Auditor |

@@ -1,14 +1,19 @@
-<script setup>
-import { Upload, X, FileCheck, Loader2 } from 'lucide-vue-next'
+<script setup lang="ts">
+import { Upload, FileCheck, Loader2 } from 'lucide-vue-next'
+import { useAppStore } from '~/stores/useAppStore'
 
-const fileInput = ref(null)
+const appStore = useAppStore()
+const config = useRuntimeConfig()
+
+const fileInput = ref<HTMLInputElement | null>(null)
 const isUploading = ref(false)
 const dragOver = ref(false)
 
-const triggerUpload = () => fileInput.value.click()
+const triggerUpload = () => fileInput.value?.click()
 
-const handleFileUpload = async (event) => {
-  const file = event.target.files[0]
+const handleFileUpload = async (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
   if (!file) return
 
   isUploading.value = true
@@ -16,12 +21,15 @@ const handleFileUpload = async (event) => {
   formData.append('file', file)
 
   try {
-    const res = await fetch('http://localhost:8000/upload', {
+    const res = await fetch(`${config.public.apiBase}/upload`, {
       method: 'POST',
+      headers: {
+        'X-API-Key': appStore.apiKey
+      },
       body: formData
     })
     if (res.ok) {
-      window.location.reload() // Refresh to update list
+      await appStore.fetchFiles()
     }
   } catch (error) {
     console.error('Upload failed:', error)
@@ -30,11 +38,11 @@ const handleFileUpload = async (event) => {
   }
 }
 
-const onDrop = (e) => {
+const onDrop = (e: DragEvent) => {
   dragOver.value = false
-  const file = e.dataTransfer.files[0]
+  const file = e.dataTransfer?.files[0]
   if (file) {
-    const inputEvent = { target: { files: [file] } }
+    const inputEvent = { target: { files: [file] } } as unknown as Event
     handleFileUpload(inputEvent)
   }
 }
@@ -42,53 +50,53 @@ const onDrop = (e) => {
 
 <template>
   <div 
+    :class="[
+      dragOver ? 'border-indigo-500 bg-indigo-50/50' : 'border-slate-200 bg-slate-50/50 hover:border-indigo-300 hover:bg-slate-50',
+      isUploading ? 'pointer-events-none opacity-70' : ''
+    ]"
+    class="group relative cursor-pointer rounded-[2.5rem] border-2 border-dashed p-12 text-center transition-all"
     @dragover.prevent="dragOver = true"
     @dragleave.prevent="dragOver = false"
     @drop.prevent="onDrop"
-    :class="[
-      dragOver ? 'border-indigo-500 bg-indigo-50/50' : 'border-slate-200 bg-slate-50/50 hover:bg-slate-50 hover:border-indigo-300',
-      isUploading ? 'opacity-70 pointer-events-none' : ''
-    ]"
-    class="relative border-2 border-dashed rounded-[2.5rem] p-12 transition-all group cursor-pointer text-center"
     @click="triggerUpload"
   >
     <input 
-      type="file" 
       ref="fileInput" 
+      type="file" 
       class="hidden" 
-      @change="handleFileUpload"
       accept=".pdf,.docx,.txt"
+      @change="handleFileUpload"
     />
 
     <div v-if="!isUploading" class="space-y-4">
-      <div class="inline-flex items-center justify-center w-20 h-20 bg-white rounded-3xl shadow-lg border border-slate-100 group-hover:-translate-y-1 transition-transform duration-300">
-        <Upload class="w-10 h-10 text-indigo-600" />
+      <div class="inline-flex size-20 items-center justify-center rounded-3xl border border-slate-100 bg-white shadow-lg transition-transform duration-300 group-hover:-translate-y-1">
+        <Upload class="size-10 text-indigo-600" />
       </div>
       <div>
         <h4 class="text-xl font-bold text-slate-900">Upload Policy Documents</h4>
-        <p class="text-slate-500 mt-2 font-medium">Drag & drop your PDF or DOCX files here</p>
+        <p class="mt-2 font-medium text-slate-500">Drag & drop your PDF or DOCX files here</p>
       </div>
       <div class="flex items-center justify-center gap-6 pt-4">
-        <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
-          <FileCheck class="w-4 h-4 text-green-500" />
+        <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400">
+          <FileCheck class="size-4 text-green-500" />
           PDF Support
         </div>
-        <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
-          <FileCheck class="w-4 h-4 text-blue-500" />
+        <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400">
+          <FileCheck class="size-4 text-blue-500" />
           Word Support
         </div>
       </div>
     </div>
 
-    <div v-else class="py-6 space-y-6">
+    <div v-else class="space-y-6 py-6">
       <div class="flex flex-col items-center justify-center">
-        <Loader2 class="w-12 h-12 text-indigo-600 animate-spin mb-4" />
+        <Loader2 class="mb-4 size-12 animate-spin text-indigo-600" />
         <h4 class="text-xl font-bold text-slate-900">Processing Document</h4>
-        <p class="text-slate-500 mt-2 font-medium italic">Converting to Markdown & Extracting Propositions...</p>
+        <p class="mt-2 font-medium italic text-slate-500">Converting to Markdown & Extracting Propositions...</p>
       </div>
       
-      <div class="max-w-xs mx-auto w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-        <div class="bg-indigo-600 h-full animate-progress-bar"></div>
+      <div class="mx-auto h-2 w-full max-w-xs overflow-hidden rounded-full bg-slate-200">
+        <div class="animate-progress-bar h-full bg-indigo-600"></div>
       </div>
     </div>
   </div>

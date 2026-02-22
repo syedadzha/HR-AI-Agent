@@ -13,6 +13,9 @@ EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "nomic-embed-text")
 CHAT_MODEL = os.getenv("CHAT_MODEL", "llama3")
 
 
+@pytest.mark.skipif(
+    os.getenv("CI") == "true", reason="Skipping Qdrant test in CI environment"
+)
 def test_qdrant_connectivity():
     """Test if Qdrant is reachable."""
     client = QdrantClient(url=QDRANT_URL)
@@ -50,6 +53,9 @@ def test_ollama_chat():
         pytest.fail(f"Failed to get response from Ollama chat: {e}")
 
 
+@pytest.mark.skipif(
+    os.getenv("CI") == "true", reason="Skipping Qdrant test in CI environment"
+)
 def test_qdrant_collection_lifecycle():
     """Test creating, checking, and deleting a test collection in Qdrant."""
     client = QdrantClient(url=QDRANT_URL)

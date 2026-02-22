@@ -1,3 +1,4 @@
+import logging
 import os
 import uuid
 from datetime import datetime
@@ -13,6 +14,7 @@ from qdrant_client import QdrantClient
 from qdrant_client.http import models
 
 load_dotenv()
+logger = logging.getLogger("hr_policy_rag")
 
 QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
@@ -67,7 +69,7 @@ class AgenticChunker:
             lines = content.split("\n")
             return [line.strip("- *").strip() for line in lines if line.strip()]
         except Exception as e:
-            print(f"Error extracting propositions: {e}")
+            logger.error(f"Error extracting propositions: {e}", exc_info=True)
             return [text]
 
     def _get_title(self, propositions: list[str]) -> str:
@@ -79,13 +81,15 @@ class AgenticChunker:
             title = content.split("\n")[0].strip("\"' ")
             return title if title else "Untitled Section"
         except Exception as e:
-            print(f"Error generating title: {e}")
+            logger.error(f"Error generating title: {e}", exc_info=True)
             return "Untitled Section"
 
     def split_documents(self, documents: list[Document]) -> list[Document]:
+        logger.info(f"Starting agentic chunking for {len(documents)} document(s).")
         final_chunks = []
 
-        for doc in documents:
+        for i, doc in enumerate(documents):
+            logger.debug(f"Processing document {i+1}/{len(documents)}...")
             initial_splitter = RecursiveCharacterTextSplitter(
                 chunk_size=4000, chunk_overlap=400
             )
@@ -94,6 +98,7 @@ class AgenticChunker:
             all_propositions = []
             for idoc in initial_docs:
                 all_propositions.extend(self._get_propositions(idoc.page_content))
+            logger.debug(f"Extracted {len(all_propositions)} propositions.")
 
             unique_propositions = []
             seen_props = set()
@@ -102,12 +107,12 @@ class AgenticChunker:
                 if clean_prop not in seen_props:
                     unique_propositions.append(prop)
                     seen_props.add(clean_prop)
+            logger.debug(f"Reduced to {len(unique_propositions)} unique propositions.")
 
             current_group = []
             current_len = 0
 
             for prop in unique_propositions:
-                # Target chunk size ~1800 chars for better context
                 if current_len + len(prop) < 1800:
                     current_group.append(prop)
                     current_len += len(prop)
@@ -116,10 +121,7 @@ class AgenticChunker:
                         section_title = self._get_title(current_group)
                         new_metadata = doc.metadata.copy()
                         new_metadata["section_title"] = section_title
-                        # Inject section title into content for better retrieval grounding
-                        content = f"Section: {section_title}\n" + " ".join(
-                            current_group
-                        )
+                        content = f"Section: {section_title}\n" + " ".join(current_group)
                         final_chunks.append(
                             Document(page_content=content, metadata=new_metadata)
                         )
@@ -134,7 +136,8 @@ class AgenticChunker:
                 final_chunks.append(
                     Document(page_content=content, metadata=new_metadata)
                 )
-
+        
+        logger.info(f"Agentic chunking complete. Produced {len(final_chunks)} final chunks.")
         return final_chunks
 
 

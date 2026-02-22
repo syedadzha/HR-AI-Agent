@@ -1,9 +1,9 @@
-<script setup>
+<script setup lang="ts">
 const isAppLaunched = ref(false)
 const activeTab = ref('chat')
 const showAuth = ref(false)
 
-const setTab = (tab) => {
+const setTab = (tab: string) => {
   activeTab.value = tab
 }
 
@@ -17,45 +17,47 @@ const launchApp = () => {
 </script>
 
 <template>
-  <div class="font-sans text-slate-900 overflow-x-hidden">
+  <div class="overflow-x-hidden font-sans text-slate-900">
     <!-- Landing Page View -->
     <div v-if="!isAppLaunched" class="animate-in fade-in duration-700">
-      <LandingPage @getStarted="launchApp" />
+      <LandingPage @get-started="launchApp" />
     </div>
 
     <!-- Main Application View -->
-    <div v-else class="flex h-screen bg-white overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div v-else class="animate-in fade-in slide-in-from-bottom-4 flex h-screen overflow-hidden bg-white duration-500">
       <!-- Main Sidebar -->
       <Sidebar 
-        :activeTab="activeTab" 
-        @setTab="setTab" 
-        @openAuth="toggleAuth"
+        :active-tab="activeTab" 
+        @set-tab="setTab" 
+        @open-auth="toggleAuth"
       />
 
       <!-- Main Content Area -->
-      <main class="flex-1 flex flex-col h-full bg-white relative">
+      <main class="relative flex h-full flex-1 flex-col bg-white">
         <!-- Transition wrapper for views -->
         <div class="flex-1 overflow-hidden">
           <div v-if="activeTab === 'chat'" class="h-full">
             <ChatInterface />
           </div>
           
-          <div v-if="activeTab === 'files'" class="h-full p-8 max-w-6xl mx-auto w-full overflow-y-auto">
-            <header class="mb-10">
-              <h2 class="text-3xl font-bold tracking-tight">Policy Library</h2>
-              <p class="text-slate-500 mt-2">Manage and upload your HR documentation for analysis.</p>
-            </header>
-            
-            <div class="space-y-12 pb-20">
-              <section>
-                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6">Quick Upload</h3>
-                <FileUpload />
-              </section>
+          <div v-if="activeTab === 'files'" class="h-full overflow-y-auto">
+            <div class="mx-auto w-full max-w-6xl p-8">
+              <header class="mb-10">
+                <h2 class="text-3xl font-bold tracking-tight">Policy Library</h2>
+                <p class="mt-2 text-slate-500">Manage and upload your HR documentation for analysis.</p>
+              </header>
               
-              <section>
-                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6">Indexed Documents</h3>
-                <FileList />
-              </section>
+              <div class="space-y-12 pb-20">
+                <section>
+                  <h3 class="mb-6 text-sm font-bold uppercase tracking-widest text-slate-400">Quick Upload</h3>
+                  <FileUpload />
+                </section>
+                
+                <section>
+                  <h3 class="mb-6 text-sm font-bold uppercase tracking-widest text-slate-400">Indexed Documents</h3>
+                  <FileList />
+                </section>
+              </div>
             </div>
           </div>
 

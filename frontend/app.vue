@@ -40,22 +40,24 @@ const launchApp = () => {
             <ChatInterface />
           </div>
           
-          <div v-if="activeTab === 'files'" class="h-full p-8 max-w-6xl mx-auto w-full overflow-y-auto">
-            <header class="mb-10">
-              <h2 class="text-3xl font-bold tracking-tight">Policy Library</h2>
-              <p class="text-slate-500 mt-2">Manage and upload your HR documentation for analysis.</p>
-            </header>
-            
-            <div class="space-y-12 pb-20">
-              <section>
-                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6">Quick Upload</h3>
-                <FileUpload />
-              </section>
+          <div v-if="activeTab === 'files'" class="h-full overflow-y-auto">
+            <div class="p-8 max-w-6xl mx-auto w-full">
+              <header class="mb-10">
+                <h2 class="text-3xl font-bold tracking-tight">Policy Library</h2>
+                <p class="text-slate-500 mt-2">Manage and upload your HR documentation for analysis.</p>
+              </header>
               
-              <section>
-                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6">Indexed Documents</h3>
-                <FileList />
-              </section>
+              <div class="space-y-12 pb-20">
+                <section>
+                  <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6">Quick Upload</h3>
+                  <FileUpload />
+                </section>
+                
+                <section>
+                  <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6">Indexed Documents</h3>
+                  <FileList />
+                </section>
+              </div>
             </div>
           </div>
 

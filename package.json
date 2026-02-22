@@ -7,12 +7,12 @@
   },
   "lint-staged": {
     "frontend/**/*.{js,ts,vue}": [
-      "pnpm --prefix frontend eslint --fix",
-      "pnpm --prefix frontend prettier --write"
+      "sh -c 'cd frontend && pnpm eslint --fix'",
+      "sh -c 'cd frontend && pnpm prettier --write'"
     ],
     "backend/**/*.py": [
-      "ruff check --fix --config backend/pyproject.toml",
-      "ruff format --config backend/pyproject.toml"
+      "conda run -n hr-policy-rag ruff check --fix --config backend/pyproject.toml",
+      "conda run -n hr-policy-rag ruff format --config backend/pyproject.toml"
     ]
   },
   "devDependencies": {

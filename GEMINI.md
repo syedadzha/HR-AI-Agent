@@ -27,6 +27,8 @@ The project now includes specialized skills in `.gemini/skills/`:
 - **`doc-keeper`**: Documentation maintenance.
 
 ## Development & Testing
+- **Setup Environment**:
+  `conda create -n hr-policy-rag python=3.11 -y; conda activate hr-policy-rag; pip install -r backend/requirements.txt`
 - **Backend Tests**: Run via `qa-suite` or manually:
   `$env:PYTHONPATH = "backend"; conda activate hr-policy-rag; pytest backend/tests -v`
 - **DB Inspection**: Use `rag-ops` script:
